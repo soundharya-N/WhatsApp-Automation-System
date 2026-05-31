@@ -36,7 +36,7 @@ const MessageForm = ({ onMessageSent, userMobile, socket }) => {
 
       setCurrentMessageId(messageId);
       setProcessing(true);
-      setCurrentStatus('Queued');
+      setCurrentStatus(response.data.data.status || 'PENDING');
       setMessage('');
       onMessageSent(response.data.data);
     } catch (err) {
