@@ -1,4 +1,4 @@
-# Whatsapp Automation System - MERN Stack
+# Whatsapp Automation System 
 
 A full-stack chat automation application with AI-powered responses using LLM (Large Language Models).
 
@@ -123,8 +123,6 @@ mongod
 
 6. Start the server:
 ```bash
-# Development with hot reload
-npm run dev
 
 # Production
 npm start

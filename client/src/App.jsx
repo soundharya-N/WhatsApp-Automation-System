@@ -28,6 +28,27 @@ function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [socket, setSocket] = useState(null);
 
+  const getPageFromPath = () => {
+    const path = window.location.pathname;
+    if (path === '/register') return 'register';
+    if (path === '/dashboard') return 'dashboard';
+    return 'login';
+  };
+
+  const routeToPage = (targetPage) => {
+    const newPath = targetPage === 'register'
+      ? '/register'
+      : targetPage === 'dashboard'
+        ? '/dashboard'
+        : '/login';
+
+    if (window.location.pathname !== newPath) {
+      window.history.pushState({}, '', newPath);
+    }
+
+    setPage(targetPage);
+  };
+
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
@@ -63,6 +84,45 @@ function App() {
     }
   }, [token, socket]);
 
+  useEffect(() => {
+    const pathPage = getPageFromPath();
+
+    if (user) {
+      if (pathPage === 'login' || pathPage === 'register') {
+        routeToPage('dashboard');
+      } else {
+        setPage('dashboard');
+      }
+    } else {
+      if (pathPage === 'register') {
+        routeToPage('register');
+      } else {
+        routeToPage('login');
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const pathPage = getPageFromPath();
+
+      if (!user && pathPage === 'dashboard') {
+        routeToPage('login');
+        return;
+      }
+
+      if (user && pathPage === 'login') {
+        routeToPage('dashboard');
+        return;
+      }
+
+      setPage(pathPage);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [user]);
+
   const handleAuthInput = (e) => {
     const { name, value } = e.target;
     setAuthForm((prev) => ({ ...prev, [name]: value }));
@@ -82,7 +142,7 @@ function App() {
       const { token: authToken, user: authUser } = response.data.data;
       setToken(authToken);
       setUser(authUser);
-      setPage('dashboard');
+      routeToPage('dashboard');
       localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(authUser));
       setAuthForm(initialAuthState);
@@ -109,7 +169,7 @@ function App() {
         password: authForm.password
       });
 
-      setPage('login');
+      routeToPage('login');
       setAuthForm(initialAuthState);
       setAuthSuccess('Registration successful. Please login with your new account.');
     } catch (error) {
@@ -125,7 +185,7 @@ function App() {
   const handleLogout = () => {
     setToken('');
     setUser(null);
-    setPage('login');
+    routeToPage('login');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setAuthForm(initialAuthState);
@@ -197,17 +257,25 @@ function App() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {page === 'login' && (
-              <div className="mt-2 text-end">
+            <div className="mt-2 text-end">
+              {page === 'login' ? (
                 <button
                   type="button"
                   className="btn btn-link p-0"
-                  onClick={() => { setPage('register'); setAuthError(''); }}
+                  onClick={() => { routeToPage('register'); setAuthError(''); }}
                 >
                   Don't have an account? Register here.
                 </button>
-              </div>
-            )}
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-link p-0"
+                  onClick={() => { routeToPage('login'); setAuthError(''); }}
+                >
+                  Already have an account? Login here.
+                </button>
+              )}
+            </div>
           </div>
 
           {authError && <div className="alert alert-danger py-2">{authError}</div>}
