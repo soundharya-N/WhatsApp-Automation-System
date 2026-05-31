@@ -62,12 +62,33 @@ function App() {
       return;
     }
 
-    const socketClient = io('/', {
-      auth: { token }
+    const socketServerUrl = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000';
+    console.log('Attempting socket connection to', socketServerUrl);
+    const socketClient = io(socketServerUrl, {
+      auth: { token },
+      query: { token },
+      transports: ['websocket', 'polling'],
+      path: '/socket.io'
+    });
+
+    socketClient.on('connect', () => {
+      console.log('Socket connected to', socketServerUrl);
     });
 
     socketClient.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
+      console.error('Socket connection error:', error.message || error);
+    });
+
+    socketClient.on('disconnect', (reason) => {
+      console.warn('Socket disconnected:', reason);
+    });
+
+    socketClient.on('reconnect_attempt', (attempt) => {
+      console.info('Socket reconnect attempt:', attempt);
+    });
+
+    socketClient.on('message_update', (msg) => {
+      console.log('App-level socket message_update received:', msg);
     });
 
     setSocket(socketClient);

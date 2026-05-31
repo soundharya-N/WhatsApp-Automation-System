@@ -1,6 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
+let historyFetchCache = {
+  promise: null,
+  data: null,
+  timestamp: 0
+};
+
+const getCachedHistory = async () => {
+  const now = Date.now();
+  if (historyFetchCache.promise) {
+    return historyFetchCache.promise;
+  }
+  if (historyFetchCache.data && now - historyFetchCache.timestamp < 1000) {
+    return historyFetchCache.data;
+  }
+
+  historyFetchCache.promise = axios.get('/api/messages')
+    .then((response) => {
+      const loadedMessages = response.data.data || [];
+      historyFetchCache.data = loadedMessages;
+      historyFetchCache.timestamp = Date.now();
+      historyFetchCache.promise = null;
+      return loadedMessages;
+    })
+    .catch((error) => {
+      historyFetchCache.promise = null;
+      throw error;
+    });
+
+  return historyFetchCache.promise;
+};
+
 const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -13,12 +44,12 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
     setError('');
 
     try {
-      const response = await axios.get('/api/messages');
-      let loadedMessages = response.data.data || [];
+      const loadedMessages = await getCachedHistory();
+      let filteredMessages = loadedMessages;
       if (currentUser?.mobileNumber) {
-        loadedMessages = loadedMessages.filter((msg) => msg.fromNumber === currentUser.mobileNumber);
+        filteredMessages = loadedMessages.filter((msg) => msg.fromNumber === currentUser.mobileNumber);
       }
-      setMessages(loadedMessages);
+      setMessages(filteredMessages);
       setCurrentPage(1);
     } catch (err) {
       setError('Failed to load messages');
@@ -33,22 +64,24 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
   }, [fetchMessages]);
 
   useEffect(() => {
-    if (refreshTrigger) {
+    if (!socket && refreshTrigger) {
       fetchMessages();
     }
-  }, [refreshTrigger, fetchMessages]);
+  }, [refreshTrigger, fetchMessages, socket]);
 
   useEffect(() => {
     if (!socket) return undefined;
+    console.log('MessageHistory registered socket listener', { socketId: socket.id });
 
     const handleUpdate = (msg) => {
       try {
         if (currentUser?.mobileNumber && msg.fromNumber !== currentUser.mobileNumber) return;
+        const msgId = String(msg._id);
 
         setMessages((prev) => {
-          const exists = prev.find((m) => m._id === msg._id);
+          const exists = prev.find((m) => String(m._id) === msgId);
           if (exists) {
-            return prev.map((m) => (m._id === msg._id ? msg : m));
+            return prev.map((m) => (String(m._id) === msgId ? msg : m));
           }
           return [msg, ...prev];
         });

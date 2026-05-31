@@ -52,7 +52,7 @@ const MessageForm = ({ onMessageSent, userMobile, socket }) => {
     }
 
     const handleUpdate = (msg) => {
-      if (!msg || msg._id !== currentMessageId) return;
+      if (!msg || String(msg._id) !== String(currentMessageId)) return;
       if (msg.status) {
         setCurrentStatus(msg.status);
       }
@@ -63,11 +63,9 @@ const MessageForm = ({ onMessageSent, userMobile, socket }) => {
       }
     };
 
-    if (socket) {
-      socket.on('message_update', handleUpdate);
-    }
+    let interval = null;
+    let socketConnectListener = null;
 
-    let active = true;
     const fetchStatus = async () => {
       try {
         const response = await axios.get(`/api/messages/${currentMessageId}`);
@@ -77,26 +75,54 @@ const MessageForm = ({ onMessageSent, userMobile, socket }) => {
         if (msg.status === 'SENT' || msg.status === 'FAILED') {
           setProcessing(false);
           setCurrentResponse(msg.response || (msg.status === 'FAILED' ? 'Processing failed' : ''));
-          active = false;
           onMessageSent(msg);
+          return true;
         }
       } catch (err) {
         console.error('Error fetching message status:', err);
       }
+      return false;
     };
 
-    fetchStatus();
-    const interval = setInterval(() => {
-      if (active) {
+    const startPolling = () => {
+      console.info('MessageForm polling enabled because socket is not connected yet');
+      fetchStatus();
+      interval = setInterval(() => {
         fetchStatus();
+      }, 3000);
+    };
+
+    if (socket) {
+      console.log('MessageForm registered socket listener', { currentMessageId, socketId: socket.id, connected: socket.connected });
+      socket.on('message_update', handleUpdate);
+
+      if (socket.connected) {
+        console.info('Socket is connected, disabling MessageForm polling for status updates');
+      } else {
+        socketConnectListener = () => {
+          console.info('Socket connection established, stopping MessageForm polling');
+          if (interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        };
+        socket.on('connect', socketConnectListener);
+        startPolling();
       }
-    }, 3000);
+    } else {
+      startPolling();
+    }
 
     return () => {
       if (socket) {
         socket.off('message_update', handleUpdate);
+        if (socketConnectListener) {
+          socket.off('connect', socketConnectListener);
+        }
       }
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
   }, [currentMessageId, processing, onMessageSent, socket]);
 
