@@ -1,8 +1,8 @@
-# 💬 Whatsapp Automation System - MERN Stack
+# Whatsapp Automation System - MERN Stack
 
 A full-stack chat automation application with AI-powered responses using LLM (Large Language Models).
 
-## 🎯 Project Features
+## Project Features
 
 - **AI-Powered Responses**: Automatic message responses using OpenAI GPT
 - **Message History**: View all sent messages and AI responses in real-time
@@ -11,7 +11,7 @@ A full-stack chat automation application with AI-powered responses using LLM (La
 - **Responsive UI**: Modern, user-friendly interface
 - **Status Tracking**: Track message status (PENDING, SENT, FAILED)
 
-## 📋 Tech Stack
+## Tech Stack
 
 ### Backend
 - **Node.js** & **Express.js** - Server framework
@@ -25,37 +25,50 @@ A full-stack chat automation application with AI-powered responses using LLM (La
 - **Axios** - HTTP Client
 - **CSS3** - Styling
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 message/
 ├── server/                          # Backend
-│   ├── models/
-│   │   └── Message.js              # MongoDB schema
-│   ├── controllers/
-│   │   └── messageController.js    # API logic
-│   ├── routes/
-│   │   └── messageRoutes.js        # API routes
-│   ├── services/
-│   │   └── llmService.js           # LLM integration
+│   ├── controllers/                 # Request handlers and logic
+│   │   ├── authController.js
+│   │   ├── messageController.js
+│   │   └── webhookController.js
+│   ├── middleware/                  # Request middleware
+│   │   └── authMiddleware.js
+│   ├── models/                      # Mongoose schemas
+│   │   ├── Message.js
+│   │   └── User.js
+│   ├── queue/                       # Job queue implementation
+│   │   └── messageQueue.js
+│   ├── routes/                      # API route definitions
+│   │   ├── authRoutes.js
+│   │   └── messageRoutes.js
+│   ├── services/                    # External integrations
+│   │   └── llmService.js
+│   ├── sockets/                     # WebSocket handling
+│   │   └── socketService.js
+│   ├── .env.example
 │   ├── package.json
-│   ├── server.js                   # Main server file
-│   └── .env.example
+│   ├── package-lock.json
+│   └── server.js                   # Main server file
 │
 └── client/                          # Frontend
-    ├── src/
-    │   ├── components/
-    │   │   ├── MessageForm.jsx     # Form to submit messages
-    │   │   └── MessageHistory.jsx  # Table with message history
-    │   ├── App.jsx                 # Main component
-    │   ├── App.css                 # Styling
-    │   └── index.js                # Entry point
+    ├── build/                       # Production build output
     ├── public/
     │   └── index.html              # HTML template
-    └── package.json
+    ├── src/
+    │   ├── components/
+    │   │   ├── MessageForm.jsx
+    │   │   └── MessageHistory.jsx
+    │   ├── App.jsx
+    │   ├── App.css
+    │   └── index.js
+    ├── package.json
+    └── package-lock.json
 ```
 
-## 📦 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 - Node.js (v14+)
