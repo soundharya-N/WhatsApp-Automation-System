@@ -1,0 +1,382 @@
+/* App Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f3f4f6;
+  min-height: 100vh;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: #ffffff;
+}
+
+.app-header h1,
+.app-header p {
+  color: #1f2937;
+}
+
+.app-body {
+  padding-bottom: 2rem;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.card-body {
+  padding: 1.6rem;
+}
+
+.auth-footer,
+.alert {
+  font-size: 0.95rem;
+}
+
+.register-link {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  color: #0a58ca;
+  text-decoration: underline;
+}
+
+.alert-info {
+  background-color: #eff6ff;
+  color: #0c5460;
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    text-align: center;
+  }
+
+  .app-header .btn {
+    width: 100%;
+  }
+}
+
+/* Message Styles */
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 4px solid #c33;
+  font-size: 0.92rem;
+}
+
+.success-message {
+  background: #efe;
+  color: #3c3;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 4px solid #3c3;
+  font-size: 0.92rem;
+}
+
+.loading {
+  text-align: center;
+  color: #667eea;
+  padding: 20px;
+  font-weight: 600;
+}
+
+.no-messages {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-size: 1.05rem;
+}
+
+/* Message History Styles */
+.message-history {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.processing-panel {
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.processing-header {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e7eaf5;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+.processing-response {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.message-history h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.table-container {
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 320px);
+  overflow: auto;
+  border: 1px solid #e9e9ef;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 18px;
+}
+
+.messages-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.messages-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.messages-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.messages-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.3s ease;
+}
+
+.messages-table tbody tr:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.pagination-button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  background: #667eea;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.25s ease;
+}
+
+.pagination-button:disabled {
+  background: #c1c7dd;
+  cursor: not-allowed;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: #5b6fd7;
+}
+
+.pagination-info {
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.messages-table td {
+  padding: 15px;
+  color: #333;
+}
+
+.time-cell {
+  color: #999;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.message-cell {
+  max-width: 300px;
+  word-wrap: break-word;
+  color: #555;
+}
+
+.response-cell {
+  max-width: 300px;
+  word-wrap: break-word;
+  color: #667eea;
+  font-weight: 500;
+}
+
+.status-cell {
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.status-sent {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-failed {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .left-panel,
+  .right-panel {
+    flex: 1;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .left-panel,
+  .right-panel {
+    padding: 15px;
+  }
+
+  .messages-table th,
+  .messages-table td {
+    padding: 10px 5px;
+    font-size: 0.85rem;
+  }
+
+  .message-cell,
+  .response-cell {
+    max-width: 150px;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+.processing-panel {
+  margin-top: 20px;
+  padding: 18px;
+  background: #f5f7ff;
+  border: 1px solid #dbe2ff;
+  border-radius: 12px;
+}
+
+.processing-header {
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background: #e8eaf6;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #5e72f7 100%);
+  transition: width 0.35s ease;
+}
+
+.processing-response {
+  background: white;
+  border: 1px solid #dfe4ff;
+  border-radius: 10px;
+  padding: 14px;
+  color: #2f3e6a;
+}
+
+.processing-response p {
+  margin-top: 8px;
+  line-height: 1.6;
+}
