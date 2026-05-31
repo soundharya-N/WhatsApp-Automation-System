@@ -35,15 +35,17 @@ const initSocket = (server) => {
     });
   });
 
+  // create new socket for every client connection and log it
   io.on('connection', (socket) => {
     const { user } = socket;
     console.log('Socket client connected', {
       socketId: socket.id,
-      user: user ? { mobileNumber: user.mobileNumber, username: user.username } : null
+      user: user ? { userId: user.userId || user._id, mobileNumber: user.mobileNumber, username: user.username } : null
     });
 
-    if (user?.mobileNumber) {
-      socket.join(`user_${user.mobileNumber}`);
+    if (user?.userId || user?._id) {
+      const uid = user.userId || user._id;
+      socket.join(`user_${uid}`);
     }
 
     socket.on('disconnect', (reason) => {
@@ -54,6 +56,7 @@ const initSocket = (server) => {
   return io;
 };
 
+//send event to frontend via socket
 const sendEvent = (eventName, data, targetMobile) => {
   if (!io) return;
   const payload = data && typeof data.toJSON === 'function' ? data.toJSON() : data;
@@ -62,8 +65,15 @@ const sendEvent = (eventName, data, targetMobile) => {
     eventName,
     targetMobile,
     payloadId: payload?._id || payload?.id,
-    payloadStatus: payload?.status
+    payloadStatus: payload?.status,
+    payloadUserId: payload?.userId
   });
+
+  // Emit by userId room if available, otherwise use mobile room or global emit
+  if (payload?.userId) {
+    io.to(`user_${payload.userId}`).emit(eventName, payload);
+    return;
+  }
 
   if (targetMobile) {
     io.to(`user_${targetMobile}`).emit(eventName, payload);

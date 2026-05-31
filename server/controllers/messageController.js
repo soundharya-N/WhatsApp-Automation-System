@@ -9,9 +9,10 @@ const sendMessage = async (req, res) => {
   try {
 const { message } = req.body;
   const fromNumber = req.user?.mobileNumber;
+  const userId = req.user?.userId || req.user?._id || req.user?.id;
 
   // Validation
-  if (!fromNumber || !message) {
+  if (!fromNumber || !message || !userId) {
     return res.status(400).json({ 
       success: false, 
       message: 'Mobile number and message are required' 
@@ -20,6 +21,7 @@ const { message } = req.body;
 
   // Create new message record with PENDING status
   let messageRecord = new Message({
+    userId,
     fromNumber,
     message,
     status: 'PENDING'
@@ -41,8 +43,9 @@ const { message } = req.body;
       res.status(200).json({
         success: true,
         message: 'Message queued for processing',
-        data: {
+          data: {
           id: messageRecord._id,
+          userId: messageRecord.userId,
           fromNumber: messageRecord.fromNumber,
           message: messageRecord.message,
           status: messageRecord.status,
@@ -74,6 +77,7 @@ const { message } = req.body;
         message: 'Message created; queue unavailable. Status will be updated via webhook.',
         data: {
           id: messageRecord._id,
+          userId: messageRecord.userId,
           fromNumber: messageRecord.fromNumber,
           message: messageRecord.message,
           status: messageRecord.status,
@@ -94,7 +98,10 @@ const { message } = req.body;
 // GET /api/messages - Get all messages
 const getAllMessages = async (req, res) => {
   try {
-    const messages = await Message.find().sort({ time: -1 });
+    // Filter by normalized userId only
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    const filter = { userId };
+    const messages = await Message.find(filter).sort({ time: -1 });
     res.status(200).json({
       success: true,
       data: messages
@@ -117,6 +124,14 @@ const getMessageById = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Message not found'
+      });
+    }
+    // Enforce ownership by normalized userId only
+    const userId = req.user?.userId || req.user?._id || req.user?.id;
+    if (String(message.userId) !== String(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden'
       });
     }
     res.status(200).json({

@@ -56,23 +56,6 @@ const processJobData = async ({ messageId, message, fromNumber }) => {
     return { success: true, messageId, response: llmResponse };
   } catch (error) {
     console.error(`✗ Processing failed for message ${messageId}:`, error.message);
-
-    try {
-      await axios.post(internalWebhookUrl, {
-        messageId,
-        status: 'FAILED',
-        response: 'failed to respond',
-        error: error.message,
-        timestamp: new Date()
-      }, {
-        timeout: 10000,
-        headers: { 'Content-Type': 'application/json' }
-      });
-      console.log(`✓ Internal failure webhook invoked for message ${messageId}`);
-    } catch (webhookError) {
-      console.error(`✗ Internal failure webhook failed for message ${messageId}:`, webhookError.message);
-    }
-
     throw error;
   }
 };
@@ -90,12 +73,33 @@ const initializeQueue = async () => {
       { connection }
     );
 
-    messageQueue.on('completed', (job) => {
+    messageWorker.on('completed', (job) => {
       console.log(`✓ Job ${job.id} completed successfully`);
     });
 
-    messageQueue.on('failed', (job, err) => {
+    messageWorker.on('failed', async (job, err) => {
       console.error(`✗ Job ${job.id} failed:`, err.message);
+
+      const maxAttempts = job.opts.attempts || 1;
+      if (job.attemptsMade >= maxAttempts) {
+        try {
+          await axios.post(internalWebhookUrl, {
+            messageId: job.data.messageId,
+            status: 'FAILED',
+            response: 'failed to respond',
+            error: err.message,
+            timestamp: new Date()
+          }, {
+            timeout: 10000,
+            headers: { 'Content-Type': 'application/json' }
+          });
+          console.log(`✓ Internal failure webhook invoked for final failed job ${job.id}`);
+        } catch (webhookError) {
+          console.error(`✗ Internal failure webhook failed for job ${job.id}:`, webhookError.message);
+        }
+      } else {
+        console.warn(`⚠️ Job ${job.id} failed attempt ${job.attemptsMade}/${maxAttempts}, retrying...`);
+      }
     });
 
     console.log('✓ BullMQ queue initialized with Redis');

@@ -3,6 +3,8 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import MessageForm from './components/MessageForm';
 import MessageHistory from './components/MessageHistory';
+import Login from './components/Login';
+import Register from './components/Register';
 import './App.css';
 
 const initialAuthState = {
@@ -216,99 +218,33 @@ function App() {
     setShowPassword((prev) => !prev);
   };
 
+  const authPage = page === 'login' ? (
+    <Login
+      authForm={authForm}
+      onInputChange={handleAuthInput}
+      onSubmit={handleLogin}
+      authError={authError}
+      authSuccess={authSuccess}
+      showPassword={showPassword}
+      togglePasswordVisibility={togglePasswordVisibility}
+      onSwitchToRegister={() => { routeToPage('register'); setAuthError(''); }}
+    />
+  ) : (
+    <Register
+      authForm={authForm}
+      onInputChange={handleAuthInput}
+      onSubmit={handleRegister}
+      authError={authError}
+      authSuccess={authSuccess}
+      showPassword={showPassword}
+      togglePasswordVisibility={togglePasswordVisibility}
+      onSwitchToLogin={() => { routeToPage('login'); setAuthError(''); }}
+    />
+  );
+
   const handleMessageSent = (newMessage) => {
     setRefreshTrigger((prev) => prev + 1);
   };
-
-  const authFormContent = (
-    <div className="card shadow-sm border-0">
-      <div className="card-body p-4">
-        <div className="mb-3 text-center">
-          <h2 className="h4 mb-2">{page === 'login' ? 'Login' : 'Register'}</h2>
-          <p className="text-muted mb-0">Access your account to start sending messages.</p>
-        </div>
-
-        <form onSubmit={page === 'login' ? handleLogin : handleRegister}>
-          <div className="mb-3">
-            <label htmlFor="username" className="form-label">Username</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              className="form-control"
-              placeholder="Enter username"
-              value={authForm.username}
-              onChange={handleAuthInput}
-            />
-          </div>
-
-          {page === 'register' && (
-            <div className="mb-3">
-              <label htmlFor="mobileNumber" className="form-label">Mobile Number</label>
-              <input
-                id="mobileNumber"
-                name="mobileNumber"
-                type="tel"
-                className="form-control"
-                placeholder="Enter mobile number"
-                value={authForm.mobileNumber}
-                onChange={handleAuthInput}
-              />
-            </div>
-          )}
-
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">Password</label>
-            <div className="input-group">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                className="form-control"
-                placeholder="Enter password"
-                value={authForm.password}
-                onChange={handleAuthInput}
-              />
-              <button
-                type="button"
-                className="btn btn-outline-secondary"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-            <div className="mt-2 text-end">
-              {page === 'login' ? (
-                <button
-                  type="button"
-                  className="btn btn-link p-0"
-                  onClick={() => { routeToPage('register'); setAuthError(''); }}
-                >
-                  Don't have an account? Register here.
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-link p-0"
-                  onClick={() => { routeToPage('login'); setAuthError(''); }}
-                >
-                  Already have an account? Login here.
-                </button>
-              )}
-            </div>
-          </div>
-
-          {authError && <div className="alert alert-danger py-2">{authError}</div>}
-          {authSuccess && <div className="alert alert-success py-2">{authSuccess}</div>}
-
-          <button type="submit" className="btn btn-primary w-100 py-2">
-            {page === 'login' ? 'Login' : 'Create account'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
 
   return (
     <div className="app bg-light min-vh-100">
@@ -331,7 +267,7 @@ function App() {
           {!user ? (
             <div className="row justify-content-center">
               <div className="col-12 col-md-8 col-lg-5">
-                {authFormContent}
+                {authPage}
               </div>
             </div>
           ) : (

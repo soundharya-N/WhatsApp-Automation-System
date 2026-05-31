@@ -15,10 +15,10 @@ const router = express.Router();
 router.post('/send-message', authenticateJWT, sendMessage);
 
 // GET all messages
-router.get('/', getAllMessages);
+router.get('/', authenticateJWT, getAllMessages);
 
 // GET single message by ID
-router.get('/:id', getMessageById);
+router.get('/:id', authenticateJWT, getMessageById);
 
 // POST webhook endpoint for delivery updates
 router.post('/webhook/delivery-status', handleWebhookEvent);

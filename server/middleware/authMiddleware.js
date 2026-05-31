@@ -20,7 +20,13 @@ const authenticateJWT = (req, res, next) => {
       });
     }
 
-    req.user = decoded;
+    // Normalize user id fields so controllers can use either userId or _id
+    req.user = {
+      ...decoded,
+      userId: decoded.userId || decoded._id || decoded.id,
+      _id: decoded.userId || decoded._id || decoded.id,
+      id: decoded.userId || decoded._id || decoded.id
+    };
     next();
   });
 };

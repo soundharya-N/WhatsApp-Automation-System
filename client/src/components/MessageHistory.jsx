@@ -45,11 +45,8 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
 
     try {
       const loadedMessages = await getCachedHistory();
-      let filteredMessages = loadedMessages;
-      if (currentUser?.mobileNumber) {
-        filteredMessages = loadedMessages.filter((msg) => msg.fromNumber === currentUser.mobileNumber);
-      }
-      setMessages(filteredMessages);
+      // API already filters by userId, no need to filter here
+      setMessages(loadedMessages);
       setCurrentPage(1);
     } catch (err) {
       setError('Failed to load messages');
@@ -57,7 +54,7 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
     } finally {
       setLoading(false);
     }
-  }, [currentUser?.mobileNumber]);
+  }, []);
 
   useEffect(() => {
     fetchMessages();
@@ -75,7 +72,7 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
 
     const handleUpdate = (msg) => {
       try {
-        if (currentUser?.mobileNumber && msg.fromNumber !== currentUser.mobileNumber) return;
+        // Socket only sends to authenticated user's room, no need to check mobileNumber
         const msgId = String(msg._id);
 
         setMessages((prev) => {
@@ -95,7 +92,7 @@ const MessageHistory = ({ refreshTrigger, currentUser, socket }) => {
     return () => {
       socket.off('message_update', handleUpdate);
     };
-  }, [currentUser?.mobileNumber, socket]);
+  }, [socket]);
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
