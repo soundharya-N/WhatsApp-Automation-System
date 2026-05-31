@@ -1,15 +1,15 @@
 # Whatsapp Automation System 
 
-A full-stack chat automation application with AI-powered responses using LLM (Large Language Models).
+A full-stack chat automation application with AI-powered responses.
 
 ## Project Features
 
-- **AI-Powered Responses**: Automatic message responses using OpenAI GPT
+- **AI-Powered Responses**: Automatic message responses using GEMINI API
 - **Message History**: View all sent messages and AI responses in real-time
 - **Database Management**: MongoDB collection to store all messages
-- **RESTful API**: POST endpoint for message submission
+- **Redis-BullMq**: Asynchronous request processing
 - **Responsive UI**: Modern, user-friendly interface
-- **Status Tracking**: Track message status (PENDING, SENT, FAILED)
+- **Status Tracking**: Live message status tracking using socket (PENDING, SENT, FAILED)
 
 ## Tech Stack
 
@@ -17,13 +17,11 @@ A full-stack chat automation application with AI-powered responses using LLM (La
 - **Node.js** & **Express.js** - Server framework
 - **MongoDB** - NoSQL Database
 - **Mongoose** - MongoDB ODM
-- **OpenAI API** - LLM Integration
 - **CORS** - Cross-Origin Resource Sharing
 
 ### Frontend
-- **React 18** - UI Library
+- **React** - UI Library
 - **Axios** - HTTP Client
-- **CSS3** - Styling
 
 ## Project Structure
 
@@ -74,7 +72,7 @@ message/
 - Node.js (v14+)
 - MongoDB (local or cloud)
 - Redis (local or hosted)
-- Gemini API key (`GEMINI_API_KEY`) or alternative `LLM_API_KEY`
+- Gemini API key (`GEMINI_API_KEY`)
 
 ### Backend Setup
 
@@ -110,24 +108,15 @@ REDIS_PORT=6379
 # Optional: REDIS_URL=redis://localhost:6379
 
 JWT_SECRET=replace_with_a_strong_secret
-```
 
-5. Start MongoDB (if running locally):
+5. Start MongoDB
+
+6. Start Redis
+
+7. Start the server:
 ```bash
-# Windows
-mongod
-
-# macOS/Linux
-mongod
-```
-
-6. Start the server:
-```bash
-
-# Production
 npm start
 ```
-
 Server will run on: `http://localhost:5000`
 
 ### Frontend Setup
@@ -146,5 +135,5 @@ npm install
 ```bash
 npm start
 ```
-
 Client will run on: `http://localhost:3000`
+
